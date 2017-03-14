@@ -5,7 +5,7 @@ const assertEquals = (expected, actual, description) => {
   }
   catch (error) {
     // Replace template literals
-    var err = description ? description + ': '+ error.message : '' + error.message;
+    var err = (description ? description + ': ' : '') + error.message;
     throw new Error(err);
   }
 };
@@ -24,7 +24,8 @@ var deepEquals = (a, b,trace) => {
     throw new Error(`Expected ${trace}, but was not found`)
 
   if (typeA !== typeB)
-    throw new Error(`Expected type ${getType(a)}, but found type ${getType(b)}`)
+    // throw new Error(`Expected type ${getType(a)}, but found type ${getType(b)}`)
+    throw new Error('Expected type ' + getType(a) + ', but found type ' + getType(b));
 
   if (typeof a !== 'object' && a !== b)
     throw new Error(`Expected ${trace ? trace + ' ' : ''}${JSON.stringify(a)}, but found ${JSON.stringify(b)}`)
@@ -32,11 +33,20 @@ var deepEquals = (a, b,trace) => {
   if (typeA === 'array' && a.length !== b.length)
     throw new Error(`Expected array length ${a.length}, but found ${b.length}`)
 
-  if (typeof a === 'object')
+  if (typeof a === 'object') {
     // Replace Set and spread operators
-    new Set([...Object.keys(a), ...Object.keys(b)]).forEach(
-      key => deepEquals(a[key], b[key], `${trace}${buildTrace(a, key)}`)
+
+    var arr = Object.keys(a).concat(Object.keys(b));
+    var fakeSet = arr.filter(function(item, currentIndex) {
+      return arr.indexOf(item) === currentIndex;
+    })
+
+    fakeSet.forEach(
+      function(key) {
+        return deepEquals(a[key], b[key], `${trace}${buildTrace(a, key)}`)
+      }
     )
+  }
 }
 
 const getType = x => {
@@ -50,19 +60,16 @@ const getType = x => {
 const buildTrace = (element, key) => element instanceof Array ? `[${key}]` : `.${key}`
 
 
-// Replace class definition
-class Test {
-  // Replace destructuring assignment
-  constructor({expected, actual, description}) {
-    this.expected = expected
-    this.actual = actual
-    this.description = description
-  }
-
-  run() {
-    assertEquals(this.expected, this.actual, this.description)
-  }
+function Test (obj) {
+  this.expected = obj.expected;
+  this.actual = obj.actual;
+  this.description = obj.description;
 }
+
+Test.prototype.run = function() {
+  assertEquals(this.expected, this.actual, this.description);
+}
+
 
 const tests = [
   {
