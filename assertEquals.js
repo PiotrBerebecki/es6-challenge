@@ -1,25 +1,24 @@
 // Replace const and arrow functions
-var assertEquals = function(expected, actual, description) {
+const assertEquals = (expected, actual, description) => {
   try {
-    deepEquals(expected, actual)
+    deepEquals(expected, actual);
   }
   catch (error) {
     // Replace template literals
-    var err = description ? (description + ': ') : error.message;
+    var err = description ? description + ': '+ error.message : '' + error.message;
     throw new Error(err);
-
   }
-}
+};
 
 // Replace default parameter values
-var deepEquals = function(a, b, ){
+var deepEquals = (a, b,trace) => {
   // Replace let
-  trace = trace = ''
-  let typeA = getType(a)
-  let typeB = getType(b)
+  trace = trace ||''
+ var typeA = getType(a)
+ var typeB = getType(b)
 
   if (typeA === 'undefined' && typeB !== 'undefined')
-    throw new Error(`Found ${trace}, none expected`)
+    throw new Error('Found '+trace+', none expected');
 
   if (typeB === 'undefined' && typeA !== 'undefined')
     throw new Error(`Expected ${trace}, but was not found`)
