@@ -1,20 +1,17 @@
 // Replace const and arrow functions
-var assertEquals = function(expected, actual, description) {
+const assertEquals = (expected, actual, description) => {
   try {
     deepEquals(expected, actual)
   }
   catch (error) {
     // Replace template literals
-    var err = description ? (description + ': ') : error.message;
-    throw new Error(err);
-
+    throw new Error(`${description ? description + ': ' : ''}${error.message}`)
   }
 }
 
 // Replace default parameter values
-var deepEquals = function(a, b, ){
+const deepEquals = (a, b, trace='') => {
   // Replace let
-  trace = trace = ''
   let typeA = getType(a)
   let typeB = getType(b)
 
